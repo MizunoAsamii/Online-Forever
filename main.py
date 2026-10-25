@@ -33,9 +33,9 @@ activity = {
 
 if USE_EMOJI:
     activity["emoji"] = {
-        "name": "",
-        "id": "1520485215645073680",
-        "animated": True
+        "name": "🔥",
+        "id": None,
+        "animated": False
     }
 
 async def discord_gateway():
