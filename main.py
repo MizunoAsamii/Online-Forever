@@ -10,7 +10,7 @@ TOKEN = os.getenv("TOKEN")
 STATUS = "online"  # online / dnd / idle
 
 # Trạng thái tùy chỉnh
-STATUS_TEXT = "/u200b"
+STATUS_TEXT = "\u200b"
 EMOJI_NAME = "MahiruDumA"
 EMOJI_ID = "1520485215645073680"
 EMOJI_ANIMATED = True
