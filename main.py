@@ -26,7 +26,7 @@ print("Đăng nhập thành công!", flush=True)
 def set_custom_status():
     payload = {
         "custom_status": {
-            "text": ".",
+            "text": "",
             "emoji_id": "1520485215645073680",
             "emoji_name": "MahiruDumA"
         }
@@ -46,7 +46,7 @@ def set_custom_status():
 async def discord_gateway():
     uri = "wss://gateway.discord.gg/?v=10&encoding=json"
 
-    async with websockets.connect(uri) as ws:
+    async with websockets.connect(uri, max_size=None) as ws:
         hello = json.loads(await ws.recv())
         heartbeat_interval = hello["d"]["heartbeat_interval"]
 
@@ -93,4 +93,4 @@ while True:
         asyncio.run(discord_gateway())
     except Exception as e:
         print("Error:", e, flush=True)
-    time.sleep(5)
+    time.sleep(30)
