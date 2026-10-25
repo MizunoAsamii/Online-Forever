@@ -9,7 +9,7 @@ import websockets
 TOKEN = os.getenv("TOKEN")
 STATUS = "online"  # online / dnd / idle
 CUSTOM_STATUS = ""  # Để trống nếu không muốn custom status
-USE_EMOJI = 
+USE_EMOJI = True
 
 if not TOKEN:
     print("Chưa có biến môi trường TOKEN!")
