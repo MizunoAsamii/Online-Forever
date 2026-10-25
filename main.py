@@ -1,22 +1,28 @@
 import asyncio
 import json
+import os
+import time
+
 import requests
 import websockets
 
-TOKEN = "Add your token here"
+TOKEN = os.getenv("TOKEN")
 STATUS = "online"  # online / dnd / idle
-CUSTOM_STATUS = "Hey!"  # Leave empty if you don't want a custom status
+CUSTOM_STATUS = "Hey!"  # Để trống nếu không muốn custom status
 USE_EMOJI = False
+
+if not TOKEN:
+    print("Chưa có biến môi trường TOKEN!")
+    exit()
 
 headers = {"Authorization": TOKEN}
 
-r = requests.get("https://discord.com/api/v10/users/@me", headers=headers)
+r = requests.get("https://discord.com/api/v10/users/@me", headers=headers, timeout=15)
 if r.status_code != 200:
     print("Invalid token!")
     exit()
 
-user = r.json()
-print(f"Logged in as {user['username']} ({user['id']})!")
+print("Đăng nhập thành công!")
 
 activity = {
     "name": "Custom Status",
@@ -27,8 +33,8 @@ activity = {
 
 if USE_EMOJI:
     activity["emoji"] = {
-        "name": "🔥",   # Unicode emoji or emoji name
-        "id": None,     # Required only for custom emojis
+        "name": "🔥",
+        "id": None,
         "animated": False
     }
 
@@ -44,7 +50,7 @@ async def discord_gateway():
                 await asyncio.sleep(heartbeat_interval / 1000)
                 await ws.send(json.dumps({"op": 1, "d": None}))
 
-        asyncio.create_task(heartbeat())
+        hb_task = asyncio.create_task(heartbeat())
 
         identify = {
             "op": 2,
@@ -64,18 +70,18 @@ async def discord_gateway():
         }
         await ws.send(json.dumps(identify))
 
-        while True:
-            try:
+        try:
+            while True:
                 msg = await ws.recv()
-                data = json.loads(msg)
-
-                if data.get("op") == 11:
-                    pass
-
-            except Exception as e:
-                print("Connection lost, reconnecting...", e)
-                break
+                json.loads(msg)
+        except Exception as e:
+            print("Connection lost, reconnecting...", e)
+        finally:
+            hb_task.cancel()
 
 while True:
-    asyncio.run(discord_gateway())
-    asyncio.sleep(5)
+    try:
+        asyncio.run(discord_gateway())
+    except Exception as e:
+        print("Error:", e)
+    time.sleep(5)
