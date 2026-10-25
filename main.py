@@ -33,7 +33,6 @@ print("Đăng nhập thành công!", flush=True)
 activity = {
     "name": "Custom Status",
     "type": 4,
-    "state": STATUS_TEXT,
     "id": "custom",
     "emoji": {
         "name": EMOJI_NAME,
@@ -46,7 +45,7 @@ activity = {
 def set_custom_status():
     payload = {
         "custom_status": {
-            "text": STATUS_TEXT,
+            "text": None,
             "emoji_id": EMOJI_ID,
             "emoji_name": EMOJI_NAME,
         }
