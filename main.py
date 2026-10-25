@@ -8,7 +8,7 @@ import websockets
 
 TOKEN = os.getenv("TOKEN")
 STATUS = "online"  # online / dnd / idle
-CUSTOM_STATUS = "Hey!"  # Để trống nếu không muốn custom status
+CUSTOM_STATUS = ""  # Để trống nếu không muốn custom status
 USE_EMOJI = False
 
 if not TOKEN:
@@ -64,7 +64,7 @@ async def discord_gateway():
                 "presence": {
                     "status": STATUS,
                     "afk": False,
-                    "activities": [activity]
+                    "activities": [activity] if CUSTOM_STATUS else []
                 }
             }
         }
