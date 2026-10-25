@@ -9,7 +9,7 @@ import websockets
 TOKEN = os.getenv("TOKEN")
 STATUS = "online"  # online / dnd / idle
 CUSTOM_STATUS = ""  # Để trống nếu không muốn custom status
-USE_EMOJI = False
+USE_EMOJI = 
 
 if not TOKEN:
     print("Chưa có biến môi trường TOKEN!")
@@ -33,9 +33,9 @@ activity = {
 
 if USE_EMOJI:
     activity["emoji"] = {
-        "name": "🔥",
-        "id": None,
-        "animated": False
+        "name": "",
+        "id": "1520485215645073680",
+        "animated": True
     }
 
 async def discord_gateway():
@@ -64,7 +64,7 @@ async def discord_gateway():
                 "presence": {
                     "status": STATUS,
                     "afk": False,
-                    "activities": [activity] if CUSTOM_STATUS else []
+                    "activities": [activity] if (CUSTOM_STATUS or USE_EMOJI) else []
                 }
             }
         }
