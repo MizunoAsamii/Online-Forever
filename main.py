@@ -10,9 +10,9 @@ TOKEN = os.getenv("TOKEN")
 STATUS = "online"  # online / dnd / idle
 
 # Trạng thái tùy chỉnh
-STATUS_TEXT = "\u200b"
-EMOJI_NAME = "MahiruBedge"
-EMOJI_ID = "1520436009974759495"
+STATUS_TEXT = "𝓛𝓸𝓿𝓮 𝔂𝓸𝓾"
+EMOJI_NAME = "MahiruHeart2"
+EMOJI_ID = "1520519277885526177"
 EMOJI_ANIMATED = False 
 
 REFRESH_SECONDS = 1800  # đặt lại trạng thái mỗi 30 phút
@@ -33,6 +33,7 @@ print("Đăng nhập thành công!", flush=True)
 activity = {
     "name": "Custom Status",
     "type": 4,
+    "state": STATUS_TEXT,
     "id": "custom",
     "emoji": {
         "name": EMOJI_NAME,
@@ -45,7 +46,7 @@ activity = {
 def set_custom_status():
     payload = {
         "custom_status": {
-            "text": None,
+            "text": STATUS_TEXT,
             "emoji_id": EMOJI_ID,
             "emoji_name": EMOJI_NAME,
         }
