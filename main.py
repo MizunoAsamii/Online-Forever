@@ -11,8 +11,8 @@ STATUS = "online"  # online / dnd / idle
 
 # Trạng thái tùy chỉnh
 STATUS_TEXT = "𝓛𝓸𝓿𝓮 𝔂𝓸𝓾, 𝓶𝔂 𝓼𝔀𝓮𝓮𝓽𝓲𝓮"
-EMOJI_NAME = "MarinComfy"
-EMOJI_ID = "954930339141279804"
+EMOJI_NAME = "MarinHeart"
+EMOJI_ID = "937502625631449128"
 EMOJI_ANIMATED = False 
 
 REFRESH_SECONDS = 1800  # đặt lại trạng thái mỗi 30 phút
