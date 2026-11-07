@@ -1,4 +1,4 @@
-name: Online Forever
+name: Online Forever (6 Hour)
 
 on:
   workflow_dispatch:
