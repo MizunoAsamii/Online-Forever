@@ -1,11 +1,35 @@
-name: Online Forever (6 Hours)
+name: Online Forever (Once)
 
 on:
   workflow_dispatch:
-
+    inputs:
+      status:
+        description: "Trạng thái"
+        type: choice
+        default: online
+        options:
+          - online
+          - idle
+          - dnd
+      status_text:
+        description: "Chữ trong status (để trống nếu chỉ muốn emoji)"
+        type: string
+        default: ""
+      emoji_name:
+        description: "Tên emoji (hoặc dán emoji thường như 🔥, để trống nếu không dùng)"
+        type: string
+        default: "MahiruBedge"
+      emoji_id:
+        description: "ID emoji tùy chỉnh (để trống nếu dùng emoji thường)"
+        type: string
+        default: "1520436009974759495"
+      animated:
+        description: "Emoji động (animated)"
+        type: boolean
+        default: false
 
 concurrency:
-  group: online-forever
+  group: online-forever-once
   cancel-in-progress: true
 
 jobs:
@@ -18,6 +42,11 @@ jobs:
         with:
           python-version: "3.11"
       - run: pip install -r requirements.txt
-      - run: python main.py
+      - run: python -u main.py
         env:
           TOKEN: ${{ secrets.TOKEN }}
+          STATUS: ${{ inputs.status }}
+          STATUS_TEXT: ${{ inputs.status_text }}
+          EMOJI_NAME: ${{ inputs.emoji_name }}
+          EMOJI_ID: ${{ inputs.emoji_id }}
+          EMOJI_ANIMATED: ${{ inputs.animated }}
