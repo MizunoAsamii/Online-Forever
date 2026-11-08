@@ -11,6 +11,7 @@ concurrency:
 
 jobs:
   run:
+    if: ${{ github.event_name == 'workflow_dispatch' || vars.AUTO_ENABLED == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 350
     steps:
