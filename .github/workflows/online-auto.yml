@@ -7,6 +7,30 @@ on:
         description: "Tự chạy lại sau mỗi lần (tick để bật)"
         type: boolean
         default: false
+      status:
+        description: "Trạng thái"
+        type: choice
+        default: online
+        options:
+          - online
+          - idle
+          - dnd
+      status_text:
+        description: "Chữ trong status (để trống nếu chỉ muốn emoji)"
+        type: string
+        default: ""
+      emoji_name:
+        description: "Tên emoji (hoặc dán emoji thường như 🔥, để trống nếu không dùng)"
+        type: string
+        default: "MahiruBedge"
+      emoji_id:
+        description: "ID emoji tùy chỉnh (để trống nếu dùng emoji thường)"
+        type: string
+        default: "1520436009974759495"
+      animated:
+        description: "Emoji động (animated)"
+        type: boolean
+        default: false
 
 permissions:
   actions: write
@@ -32,8 +56,25 @@ jobs:
         run: python -u main.py
         env:
           TOKEN: ${{ secrets.TOKEN }}
+          STATUS: ${{ inputs.status }}
+          STATUS_TEXT: ${{ inputs.status_text }}
+          EMOJI_NAME: ${{ inputs.emoji_name }}
+          EMOJI_ID: ${{ inputs.emoji_id }}
+          EMOJI_ANIMATED: ${{ inputs.animated }}
       - name: Chạy lại nếu bật auto
         if: ${{ !cancelled() && inputs.auto }}
-        run: gh workflow run online-auto.yml -f auto=true
+        run: |
+          gh workflow run online-auto.yml \
+            -f auto=true \
+            -f status="$S" \
+            -f status_text="$ST" \
+            -f emoji_name="$EN" \
+            -f emoji_id="$EI" \
+            -f animated="$AN"
         env:
           GH_TOKEN: ${{ github.token }}
+          S: ${{ inputs.status }}
+          ST: ${{ inputs.status_text }}
+          EN: ${{ inputs.emoji_name }}
+          EI: ${{ inputs.emoji_id }}
+          AN: ${{ inputs.animated }}
