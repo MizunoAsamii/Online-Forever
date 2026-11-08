@@ -2,8 +2,15 @@ name: Online Forever (Auto)
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "0 */6 * * *"
+    inputs:
+      auto:
+        description: "Tự chạy lại sau mỗi lần (tick để bật)"
+        type: boolean
+        default: false
+
+permissions:
+  actions: write
+  contents: read
 
 concurrency:
   group: online-forever-auto
@@ -11,15 +18,22 @@ concurrency:
 
 jobs:
   run:
-    if: ${{ github.event_name == 'workflow_dispatch' || vars.AUTO_ENABLED == 'true' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 350
+    timeout-minutes: 360
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
       - run: pip install -r requirements.txt
-      - run: python -u main.py
+      - name: Run bot
+        timeout-minutes: 345
+        continue-on-error: true
+        run: python -u main.py
         env:
           TOKEN: ${{ secrets.TOKEN }}
+      - name: Chạy lại nếu bật auto
+        if: ${{ !cancelled() && inputs.auto }}
+        run: gh workflow run online-auto.yml -f auto=true
+        env:
+          GH_TOKEN: ${{ github.token }}
