@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Online Forever – Bảng điều khiển</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #eceaf6;
+  --surface: #f8f7fd;
+  --ink: #1f1b3d;
+  --muted: #5d5a7e;
+  --line: #cfcbe6;
+  --bubble: #ffffff;
+  --btn: #2b2470;
+  --btn-ink: #ffffff;
+  --danger: #b3261e;
+  --focus: #6a5cff;
+  --online: #23a55a;
+  --idle: #f0b232;
+  --dnd: #f23f43;
+  --off: #8a87a8;
+  --display: "Bricolage Grotesque", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --body: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #15132b;
+    --surface: #1e1b3b;
+    --ink: #ece9ff;
+    --muted: #a09cc8;
+    --line: #34305c;
+    --bubble: #2a2650;
+    --btn: #b9b0ff;
+    --btn-ink: #17143a;
+    --danger: #ff8a80;
+    --focus: #b9b0ff;
+  }
+}
+
+* { box-sizing: border-box; }
+html { background: var(--bg); }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 400 1rem/1.55 var(--body);
+}
+.wrap { max-width: 1000px; margin: 0 auto; padding: 36px 20px 72px; }
+
+header { margin-bottom: 36px; }
+h1 {
+  margin: 0 0 8px;
+  font: 800 clamp(2.2rem, 6vw, 3.4rem)/1.05 var(--display);
+  letter-spacing: -0.025em;
+}
+.sub { margin: 0; max-width: 56ch; color: var(--muted); }
+
+h2 { margin: 0 0 18px; font: 600 1.35rem/1.2 var(--display); letter-spacing: -0.01em; }
+h3 { margin: 0; font: 600 1.1rem/1.3 var(--display); }
+
+.grid { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 40px; align-items: start; }
+@media (max-width: 820px) { .grid { grid-template-columns: 1fr; gap: 36px; } }
+
+/* Preview */
+.stage { padding: 4px 0 8px; }
+.bubble {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 84px;
+  max-width: 100%;
+  padding: 18px 28px;
+  background: var(--bubble);
+  border: 1px solid var(--line);
+  border-radius: 34px;
+  font: 600 1.5rem/1.25 var(--display);
+  overflow-wrap: anywhere;
+}
+.bubble::before, .bubble::after {
+  content: "";
+  position: absolute;
+  background: var(--bubble);
+  border: 1px solid var(--line);
+  border-radius: 50%;
+}
+.bubble::before { width: 16px; height: 16px; left: 28px; bottom: -23px; }
+.bubble::after { width: 9px; height: 9px; left: 15px; bottom: -36px; }
+.bubble.empty { color: var(--muted); font-weight: 500; font-size: 1.1rem; }
+.emo { display: inline-flex; align-items: center; font-size: 1.75rem; line-height: 1; }
+.emo:empty { display: none; }
+.emo img { display: block; width: 28px; height: 28px; }
+.bubble.big { padding: 16px 30px; }
+.bubble.big .emo { font-size: 3.5rem; }
+.bubble.big .emo img { width: 56px; height: 56px; }
+.presence { display: flex; align-items: center; gap: 10px; margin: 44px 0 34px 6px; color: var(--muted); font-size: 0.95rem; }
+
+.dot { display: inline-block; flex: none; width: 12px; height: 12px; border-radius: 50%; background: var(--off); }
+.dot.online { background: var(--online); }
+.dot.idle { background: var(--idle); }
+.dot.dnd { background: var(--dnd); }
+.dot.off { background: var(--off); }
+
+/* Form */
+.field { margin: 0 0 22px; padding: 0; border: 0; min-width: 0; }
+.field > label, .field > legend { display: block; margin: 0 0 6px; padding: 0; font-weight: 600; font-size: 0.95rem; }
+.hint { margin: 6px 0 0; color: var(--muted); font-size: 0.85rem; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 480px) { .row2 { grid-template-columns: 1fr; } }
+
+input[type="text"], input[type="password"] {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+}
+input::placeholder { color: var(--muted); opacity: 0.75; }
+input:focus-visible, button:focus-visible, summary:focus-visible, a:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.seg { display: flex; flex-wrap: wrap; gap: 8px; }
+.seg label { position: relative; }
+.seg input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
+.seg span {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 9px 15px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+}
+.seg input:checked + span { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); font-weight: 600; }
+.seg input:focus-visible + span { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+.check { display: inline-flex; align-items: center; gap: 10px; margin-top: 12px; cursor: pointer; }
+.check input { width: 18px; height: 18px; margin: 0; accent-color: var(--btn); }
+
+/* Control panels */
+.panel {
+  margin: 0 0 16px;
+  padding: 20px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+.panel p { margin: 4px 0 0; color: var(--muted); font-size: 0.92rem; }
+.state { display: flex; align-items: flex-start; gap: 12px; margin: 16px 0; }
+.state .dot { margin-top: 6px; }
+.state strong { display: block; font-weight: 600; }
+.state span { display: block; color: var(--muted); font-size: 0.88rem; }
+.state a { color: inherit; text-underline-offset: 3px; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; }
+
+.btn {
+  padding: 10px 18px;
+  border: 1px solid var(--btn);
+  border-radius: 10px;
+  background: var(--btn);
+  color: var(--btn-ink);
+  font: 600 0.95rem var(--body);
+  cursor: pointer;
+}
+.btn.stop { background: transparent; border-color: var(--line); color: var(--danger); }
+.btn.plain { background: transparent; border-color: var(--line); color: var(--ink); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.msg { margin: 0 0 16px; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); font-size: 0.92rem; overflow-wrap: anywhere; }
+.msg.err { border-color: var(--danger); color: var(--danger); }
+.msg[hidden] { display: none; }
+
+/* Settings */
+details.conn { border: 1px solid var(--line); border-radius: 14px; padding: 4px 18px; }
+details.conn summary { padding: 14px 0; cursor: pointer; font: 600 1.05rem var(--display); }
+details.conn[open] summary { border-bottom: 1px solid var(--line); margin-bottom: 18px; }
+.guide { margin: 0 0 20px; padding-left: 1.2rem; color: var(--muted); font-size: 0.9rem; }
+.guide li { margin-bottom: 4px; }
+.guide a { color: var(--ink); text-underline-offset: 3px; }
+.note { margin: 0 0 18px; font-size: 0.9rem; color: var(--muted); }
+.conn .actions { margin: 4px 0 18px; }
+.secret-box { margin: 8px 0 18px; padding-top: 20px; border-top: 1px solid var(--line); }
+.secret-box .note { margin: 6px 0 16px; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .bubble { transition: padding 0.2s ease; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Online Forever</h1>
+    <p class="sub">Điều khiển bot giữ tài khoản Discord online từ xa. Bot vẫn chạy trên GitHub Actions, trang này chỉ gửi lệnh chạy và dừng.</p>
+  </header>
+
+  <noscript><p class="msg err">Trang cần JavaScript để hoạt động.</p></noscript>
+
+  <div class="grid">
+    <section aria-labelledby="h-show">
+      <h2 id="h-show">Hiển thị trên Discord</h2>
+
+      <div class="stage" aria-live="polite">
+        <div class="bubble" id="bubble">
+          <span class="emo" id="pEmo"></span>
+          <span id="pTxt"></span>
+        </div>
+        <div class="presence"><i class="dot online" id="pDot"></i><span id="pLabel">Trực tuyến</span></div>
+      </div>
+
+      <fieldset class="field">
+        <legend>Trạng thái</legend>
+        <div class="seg">
+          <label><input type="radio" name="status" value="online" checked><span><i class="dot online"></i>Trực tuyến</span></label>
+          <label><input type="radio" name="status" value="idle"><span><i class="dot idle"></i>Vắng mặt</span></label>
+          <label><input type="radio" name="status" value="dnd"><span><i class="dot dnd"></i>Đừng làm phiền</span></label>
+        </div>
+      </fieldset>
+
+      <div class="field">
+        <label for="text">Chữ trong status</label>
+        <input type="text" id="text" maxlength="128" autocomplete="off" placeholder="Để trống nếu chỉ muốn emoji">
+        <p class="hint">Có chữ thì emoji hiện nhỏ, không có chữ thì emoji hiện to.</p>
+      </div>
+
+      <div class="field">
+        <label for="paste">Dán emoji Discord</label>
+        <input type="text" id="paste" autocomplete="off" spellcheck="false" placeholder="&lt;a:TenEmoji:123456789012345678&gt;">
+        <p class="hint">Trên Discord, gõ \:tenemoji: rồi gửi để lấy chuỗi này. Dán vào đây sẽ tự điền tên, ID và emoji động.</p>
+      </div>
+
+      <div class="field">
+        <div class="row2">
+          <div>
+            <label for="emojiName">Tên emoji</label>
+            <input type="text" id="emojiName" autocomplete="off" spellcheck="false">
+          </div>
+          <div>
+            <label for="emojiId">ID emoji</label>
+            <input type="text" id="emojiId" inputmode="numeric" autocomplete="off" spellcheck="false">
+          </div>
+        </div>
+        <label class="check"><input type="checkbox" id="animated"> Emoji động</label>
+        <p class="hint">Emoji thường như 🔥: dán vào ô Tên và để trống ID.</p>
+      </div>
+    </section>
+
+    <section aria-labelledby="h-ctl">
+      <h2 id="h-ctl">Điều khiển</h2>
+
+      <article class="panel">
+        <h3>Chạy một lần</h3>
+        <p>Tự dừng sau khoảng 6 giờ.</p>
+        <div class="state">
+          <i class="dot off" id="once-dot"></i>
+          <div><strong id="once-state">Đang kiểm tra…</strong><span id="once-meta"></span></div>
+        </div>
+        <div class="actions">
+          <button type="button" class="btn" id="once-start">Chạy</button>
+          <button type="button" class="btn stop" id="once-stop">Dừng</button>
+        </div>
+      </article>
+
+      <article class="panel">
+        <h3>Tự chạy lại</h3>
+        <p>Tự nối tiếp sau mỗi khoảng 6 giờ cho đến khi bạn dừng.</p>
+        <div class="state">
+          <i class="dot off" id="auto-dot"></i>
+          <div><strong id="auto-state">Đang kiểm tra…</strong><span id="auto-meta"></span></div>
+        </div>
+        <div class="actions">
+          <button type="button" class="btn" id="auto-start">Chạy tự động</button>
+          <button type="button" class="btn stop" id="auto-stop">Dừng</button>
+        </div>
+      </article>
+
+      <p class="msg" id="msg" role="status" aria-live="polite" hidden></p>
+
+      <details class="conn" id="conn">
+        <summary>Kết nối GitHub</summary>
+
+        <p class="note">Token Discord vẫn nằm trong Secrets của repo. Đừng nhập nó vào trang này. Ở đây chỉ cần một token GitHub quyền hẹp.</p>
+
+        <ol class="guide">
+          <li>Mở <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener noreferrer">trang tạo fine-grained token</a>.</li>
+          <li>Đặt tên tùy ý và chọn thời hạn, ví dụ 90 ngày.</li>
+          <li>Repository access: chọn Only select repositories, rồi chọn repo Online-Forever.</li>
+          <li>Repository permissions: đặt Actions thành Read and write. Muốn dùng ô cập nhật token Discord bên dưới thì thêm Secrets: Read and write. Không cấp quyền nào khác.</li>
+          <li>Bấm Generate token và dán vào ô bên dưới.</li>
+        </ol>
+
+        <div class="field">
+          <label for="token">Token GitHub</label>
+          <input type="password" id="token" autocomplete="off" spellcheck="false">
+          <label class="check"><input type="checkbox" id="remember" checked> Nhớ token trên trình duyệt này</label>
+          <p class="hint">Token chỉ được lưu trong trình duyệt của bạn và chỉ gửi tới api.github.com.</p>
+        </div>
+
+        <div class="field">
+          <div class="row2">
+            <div><label for="owner">Chủ repo</label><input type="text" id="owner" autocomplete="off" spellcheck="false"></div>
+            <div><label for="repo">Tên repo</label><input type="text" id="repo" autocomplete="off" spellcheck="false"></div>
+          </div>
+        </div>
+        <div class="field">
+          <div class="row2">
+            <div><label for="ref">Nhánh</label><input type="text" id="ref" autocomplete="off" spellcheck="false"></div>
+            <div><label for="onceFile">File bản chạy một lần</label><input type="text" id="onceFile" autocomplete="off" spellcheck="false"></div>
+          </div>
+        </div>
+        <div class="field">
+          <label for="autoFile">File bản tự chạy lại</label>
+          <input type="text" id="autoFile" autocomplete="off" spellcheck="false">
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn" id="save">Lưu và kiểm tra</button>
+          <button type="button" class="btn plain" id="clear">Xóa token</button>
+        </div>
+
+        <div class="secret-box">
+          <h3>Cập nhật token Discord</h3>
+          <p class="note">Dán token Discord mới vào đây để lưu thành Secret TOKEN của repo. Token được mã hóa ngay trong trình duyệt rồi gửi thẳng tới GitHub. Trang không lưu nó, và ô sẽ tự xóa sau khi lưu.</p>
+          <div class="field">
+            <label for="discordToken">Token Discord</label>
+            <input type="password" id="discordToken" autocomplete="off" spellcheck="false">
+            <p class="hint">Cần thêm quyền Secrets: Read and write cho token GitHub.</p>
+          </div>
+          <div class="actions">
+            <button type="button" class="btn" id="saveDiscord">Lưu vào Secrets</button>
+          </div>
+        </div>
+      </details>
+    </section>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/libsodium-wrappers@0.7.13/dist/browsers/sodium.js"></script>
+<script>
+(() => {
+  'use strict';
+
+  const $ = (s) => document.querySelector(s);
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+  const ls = {
+    get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* bỏ qua */ } },
+    del(k) { try { localStorage.removeItem(k); } catch (e) { /* bỏ qua */ } }
+  };
+
+  function guessRepo() {
+    const h = location.hostname;
+    if (h.endsWith('.github.io')) {
+      const owner = h.split('.')[0];
+      const repo = location.pathname.split('/')[1];
+      if (owner && repo) return { owner, repo };
+    }
+    return { owner: 'MizunoAsamii', repo: 'Online-Forever' };
+  }
+
+  function loadJSON(key, def) {
+    try {
+      const v = JSON.parse(ls.get(key) || 'null');
+      return v && typeof v === 'object' ? { ...def, ...v } : { ...def };
+    } catch (e) {
+      return { ...def };
+    }
+  }
+
+  const guess = guessRepo();
+  const DEFAULT_CFG = { owner: guess.owner, repo: guess.repo, ref: 'main', once: 'online.yml', auto: 'online-auto.yml' };
+  const DEFAULT_FORM = { status: 'online', text: '', emojiName: 'MahiruBedge', emojiId: '1520436009974759495', animated: false };
+  const STATUS_LABEL = { online: 'Trực tuyến', idle: 'Vắng mặt', dnd: 'Đừng làm phiền' };
+
+  let cfg = loadJSON('of_cfg', DEFAULT_CFG);
+  let token = ls.get('of_token') || '';
+  let form = loadJSON('of_form', DEFAULT_FORM);
+  let busy = false;
+  const state = { once: null, auto: null };
+
+  /* ---------- Thông báo ---------- */
+  let msgTimer;
+  function setMsg(text, kind) {
+    const m = $('#msg');
+    m.textContent = text || '';
+    m.className = 'msg' + (kind === 'err' ? ' err' : '');
+    m.hidden = !text;
+    clearTimeout(msgTimer);
+    if (text && kind !== 'err') msgTimer = setTimeout(() => { m.hidden = true; }, 9000);
+  }
+
+  /* ---------- Form và xem trước ---------- */
+  function readForm() {
+    const checked = document.querySelector('input[name="status"]:checked');
+    return {
+      status: checked ? checked.value : 'online',
+      text: $('#text').value,
+      emojiName: $('#emojiName').value.trim(),
+      emojiId: $('#emojiId').value.trim(),
+      animated: $('#animated').checked
+    };
+  }
+
+  function writeForm() {
+    const r = document.querySelector('input[name="status"][value="' + form.status + '"]');
+    if (r) r.checked = true;
+    $('#text').value = form.text;
+    $('#emojiName').value = form.emojiName;
+    $('#emojiId').value = form.emojiId;
+    $('#animated').checked = !!form.animated;
+  }
+
+  function renderPreview() {
+    const f = form;
+    $('#pDot').className = 'dot ' + f.status;
+    $('#pLabel').textContent = STATUS_LABEL[f.status] || STATUS_LABEL.online;
+
+    const emo = $('#pEmo');
+    const txt = $('#pTxt');
+    const bub = $('#bubble');
+    const hasText = f.text.trim().length > 0;
+    const hasEmoji = f.emojiName.length > 0;
+    const idOk = /^\d+$/.test(f.emojiId);
+
+    emo.replaceChildren();
+    bub.classList.toggle('big', hasEmoji && !hasText);
+    bub.classList.toggle('empty', !hasEmoji && !hasText);
+
+    if (hasEmoji) {
+      if (idOk) {
+        const img = new Image();
+        img.alt = ':' + f.emojiName + ':';
+        img.decoding = 'async';
+        img.src = 'https://cdn.discordapp.com/emojis/' + f.emojiId + '.' + (f.animated ? 'gif' : 'webp') + '?size=96';
+        img.onerror = () => { emo.replaceChildren(); emo.textContent = ':' + f.emojiName + ':'; };
+        emo.append(img);
+      } else {
+        emo.textContent = f.emojiName;
+      }
+    }
+    txt.textContent = hasText ? f.text : (hasEmoji ? '' : 'Chưa đặt trạng thái');
+  }
+
+  function onFormChange() {
+    form = readForm();
+    ls.set('of_form', JSON.stringify(form));
+    renderPreview();
+  }
+
+  function parseEmoji(value) {
+    const m = value.match(/<(a?):(\w+):(\d+)>/);
+    if (!m) return false;
+    $('#emojiName').value = m[2];
+    $('#emojiId').value = m[3];
+    $('#animated').checked = m[1] === 'a';
+    onFormChange();
+    return true;
+  }
+
+  /* ---------- GitHub API ---------- */
+  const base = () => '/repos/' + encodeURIComponent(cfg.owner) + '/' + encodeURIComponent(cfg.repo);
+  const fileOf = (kind) => (kind === 'auto' ? cfg.auto : cfg.once);
+
+  async function gh(path, opts) {
+    const { method = 'GET', body } = opts || {};
+    if (!token) throw new Error('Chưa có token GitHub. Mở phần Kết nối GitHub để nhập.');
+    let res;
+    try {
+      res = await fetch('https://api.github.com' + path, {
+        method,
+        headers: Object.assign({
+          'Accept': 'application/vnd.github+json',
+          'Authorization': 'Bearer ' + token,
+          'X-GitHub-Api-Version': '2022-11-28'
+        }, body ? { 'Content-Type': 'application/json' } : {}),
+        body: body ? JSON.stringify(body) : undefined
+      });
+    } catch (e) {
+      throw new Error('Không kết nối được tới GitHub. Kiểm tra mạng rồi thử lại.');
+    }
+    if (res.ok) {
+      if (res.status === 204) return null;
+      try { return await res.json(); } catch (e) { return null; }
+    }
+    let detail = '';
+    try { detail = (await res.json()).message || ''; } catch (e) { /* bỏ qua */ }
+    if (res.status === 401) throw new Error('Token GitHub sai hoặc đã hết hạn. Tạo token mới và nhập lại.');
+    if (res.status === 403) throw new Error('GitHub từ chối: token thiếu quyền Actions (Read and write) hoặc đang bị giới hạn tốc độ. ' + detail);
+    if (res.status === 404) throw new Error('Không tìm thấy repo hoặc workflow. Kiểm tra tên repo, tên file workflow, và token đã chọn đúng repo chưa.');
+    if (res.status === 422) throw new Error('GitHub không nhận yêu cầu: ' + detail + ' Kiểm tra workflow có workflow_dispatch và đúng nhánh.');
+    throw new Error('Lỗi GitHub ' + res.status + '. ' + detail);
+  }
+
+  async function activeRuns(file) {
+    const d = await gh(base() + '/actions/workflows/' + encodeURIComponent(file) + '/runs?per_page=10');
+    return ((d && d.workflow_runs) || []).filter((r) => r.status !== 'completed');
+  }
+
+  async function stopAll(file) {
+    const seen = new Set();
+    for (let i = 0; i < 3; i++) {
+      const runs = await activeRuns(file);
+      if (!runs.length) break;
+      await Promise.all(runs.map((r) => {
+        seen.add(r.id);
+        return gh(base() + '/actions/runs/' + r.id + '/cancel', { method: 'POST' }).catch(() => {});
+      }));
+      await sleep(4000);
+    }
+    return seen.size;
+  }
+
+  /* ---------- Hành động ---------- */
+  function validateForm(f) {
+    if (f.emojiId && !/^\d+$/.test(f.emojiId)) throw new Error('ID emoji chỉ gồm chữ số.');
+    if (f.emojiId && !f.emojiName) throw new Error('Có ID emoji thì cần nhập cả tên emoji.');
+  }
+
+  async function start(kind) {
+    const f = readForm();
+    validateForm(f);
+    const otherKind = kind === 'auto' ? 'once' : 'auto';
+
+    const other = await activeRuns(fileOf(otherKind));
+    if (other.length) {
+      const name = otherKind === 'auto' ? 'Tự chạy lại' : 'Chạy một lần';
+      if (!confirm('Bản “' + name + '” đang chạy. Hai bản dùng chung một tài khoản nên nên dừng nó trước. Dừng nó và tiếp tục?')) return;
+      await stopAll(fileOf(otherKind));
+    }
+
+    const inputs = {
+      status: f.status,
+      status_text: f.text,
+      emoji_name: f.emojiName,
+      emoji_id: f.emojiId,
+      animated: f.animated ? 'true' : 'false'
+    };
+    if (kind === 'auto') inputs.auto = 'true';
+
+    await gh(base() + '/actions/workflows/' + encodeURIComponent(fileOf(kind)) + '/dispatches', {
+      method: 'POST',
+      body: { ref: cfg.ref, inputs }
+    });
+    setMsg('Đã gửi lệnh chạy. GitHub cần vài giây để khởi động.', 'ok');
+    setTimeout(refresh, 4000);
+    setTimeout(refresh, 12000);
+  }
+
+  async function stop(kind) {
+    const n = await stopAll(fileOf(kind));
+    setMsg(n ? 'Đã gửi lệnh dừng.' : 'Không có lần chạy nào đang diễn ra.', 'ok');
+    setTimeout(refresh, 3000);
+  }
+
+  async function guarded(fn) {
+    if (busy) return;
+    busy = true;
+    renderRuns();
+    try { await fn(); } catch (e) { setMsg(e.message, 'err'); }
+    busy = false;
+    renderRuns();
+  }
+
+  /* ---------- Hiển thị trạng thái chạy ---------- */
+  function fmtDuration(ms) {
+    const m = Math.floor(ms / 60000);
+    if (m < 1) return 'vừa bắt đầu';
+    if (m < 60) return m + ' phút';
+    return Math.floor(m / 60) + ' giờ ' + (m % 60) + ' phút';
+  }
+
+  function renderCard(kind) {
+    const run = state[kind];
+    const dot = $('#' + kind + '-dot');
+    const st = $('#' + kind + '-state');
+    const meta = $('#' + kind + '-meta');
+    const startBtn = $('#' + kind + '-start');
+    const stopBtn = $('#' + kind + '-stop');
+    const idleLabel = kind === 'auto' ? 'Chạy tự động' : 'Chạy';
+    const runningLabel = kind === 'auto' ? 'Áp dụng cài đặt mới' : 'Chạy lại với cài đặt mới';
+
+    meta.replaceChildren();
+    startBtn.disabled = busy || !token;
+    stopBtn.disabled = busy || !token;
+
+    if (!token) {
+      dot.className = 'dot off';
+      st.textContent = 'Chưa kết nối GitHub';
+      meta.textContent = 'Nhập token ở phần Kết nối GitHub.';
+      startBtn.textContent = idleLabel;
+      return;
+    }
+    if (!run) {
+      dot.className = 'dot off';
+      st.textContent = 'Không chạy';
+      startBtn.textContent = idleLabel;
+      return;
+    }
+
+    dot.className = 'dot ' + (run.status === 'in_progress' ? 'online' : 'idle');
+    st.textContent = run.status === 'in_progress' ? 'Đang chạy' : 'Đang chờ khởi động';
+    startBtn.textContent = runningLabel;
+
+    const started = new Date(run.run_started_at || run.created_at);
+    const time = started.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+    meta.append('Bắt đầu lúc ' + time + ', đã chạy ' + fmtDuration(Date.now() - started.getTime()) + '. ');
+    if (typeof run.html_url === 'string' && run.html_url.startsWith('https://github.com/')) {
+      const a = document.createElement('a');
+      a.href = run.html_url;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.textContent = 'Xem log';
+      meta.append(a);
+    }
+  }
+
+  function renderRuns() {
+    renderCard('once');
+    renderCard('auto');
+  }
+
+  async function refresh() {
+    if (!token) { renderRuns(); return; }
+    try {
+      const [o, a] = await Promise.all([activeRuns(cfg.once), activeRuns(cfg.auto)]);
+      state.once = o[0] || null;
+      state.auto = a[0] || null;
+    } catch (e) {
+      setMsg(e.message, 'err');
+    }
+    renderRuns();
+  }
+
+  /* ---------- Kết nối ---------- */
+  function writeConn() {
+    $('#token').value = token;
+    $('#remember').checked = ls.get('of_remember') !== '0';
+    $('#owner').value = cfg.owner;
+    $('#repo').value = cfg.repo;
+    $('#ref').value = cfg.ref;
+    $('#onceFile').value = cfg.once;
+    $('#autoFile').value = cfg.auto;
+  }
+
+  async function saveConn() {
+    const next = {
+      owner: $('#owner').value.trim(),
+      repo: $('#repo').value.trim(),
+      ref: $('#ref').value.trim(),
+      once: $('#onceFile').value.trim(),
+      auto: $('#autoFile').value.trim()
+    };
+    if (!/^[\w.-]+$/.test(next.owner) || !/^[\w.-]+$/.test(next.repo)) {
+      setMsg('Tên chủ repo hoặc tên repo không hợp lệ.', 'err');
+      return;
+    }
+    if (!next.ref) {
+      setMsg('Hãy nhập tên nhánh, thường là main.', 'err');
+      return;
+    }
+    if (!/^[\w.-]+\.ya?ml$/.test(next.once) || !/^[\w.-]+\.ya?ml$/.test(next.auto)) {
+      setMsg('Tên file workflow phải kết thúc bằng .yml hoặc .yaml.', 'err');
+      return;
+    }
+    cfg = next;
+    token = $('#token').value.trim();
+    ls.set('of_cfg', JSON.stringify(cfg));
+    const remember = $('#remember').checked;
+    ls.set('of_remember', remember ? '1' : '0');
+    if (token && remember) ls.set('of_token', token); else ls.del('of_token');
+
+    if (!token) {
+      setMsg('Đã lưu cấu hình. Còn thiếu token GitHub.', 'err');
+      renderRuns();
+      return;
+    }
+    setMsg('Đang kiểm tra kết nối…', 'ok');
+    try {
+      const [o, a] = await Promise.all([activeRuns(cfg.once), activeRuns(cfg.auto)]);
+      state.once = o[0] || null;
+      state.auto = a[0] || null;
+      setMsg('Đã lưu và kết nối thành công.', 'ok');
+    } catch (e) {
+      setMsg(e.message, 'err');
+    }
+    renderRuns();
+  }
+
+  function clearToken() {
+    token = '';
+    ls.del('of_token');
+    $('#token').value = '';
+    state.once = null;
+    state.auto = null;
+    setMsg('Đã xóa token khỏi trình duyệt này.', 'ok');
+    renderRuns();
+  }
+
+  async function saveDiscordToken() {
+    const input = $('#discordToken');
+    const value = input.value.trim();
+    if (!value) throw new Error('Hãy dán token Discord vào ô trước.');
+    if (typeof sodium === 'undefined') {
+      throw new Error('Không tải được thư viện mã hóa. Kiểm tra mạng rồi tải lại trang.');
+    }
+    const hint = ' Với tính năng này, token GitHub cần thêm quyền Secrets: Read and write.';
+    let pk;
+    try {
+      pk = await gh(base() + '/actions/secrets/public-key');
+    } catch (e) {
+      throw new Error(e.message + hint);
+    }
+    if (!pk || !pk.key || !pk.key_id) throw new Error('Không lấy được khóa mã hóa của repo.');
+
+    await sodium.ready;
+    const binKey = sodium.from_base64(pk.key, sodium.base64_variants.ORIGINAL);
+    const sealed = sodium.crypto_box_seal(sodium.from_string(value), binKey);
+    const encrypted = sodium.to_base64(sealed, sodium.base64_variants.ORIGINAL);
+
+    try {
+      await gh(base() + '/actions/secrets/TOKEN', {
+        method: 'PUT',
+        body: { encrypted_value: encrypted, key_id: pk.key_id }
+      });
+    } catch (e) {
+      throw new Error(e.message + hint);
+    }
+    input.value = '';
+    setMsg('Đã cập nhật Secret TOKEN. Bấm Chạy lại để bot dùng token mới.', 'ok');
+  }
+
+  /* ---------- Khởi động ---------- */
+  writeForm();
+  writeConn();
+  renderPreview();
+  renderRuns();
+  $('#conn').open = !token;
+
+  document.querySelectorAll('input[name="status"]').forEach((r) => r.addEventListener('change', onFormChange));
+  ['#text', '#emojiName', '#emojiId', '#animated'].forEach((s) => $(s).addEventListener('input', onFormChange));
+  $('#paste').addEventListener('input', (e) => {
+    if (parseEmoji(e.target.value)) {
+      e.target.value = '';
+      setMsg('Đã điền tên, ID và kiểu emoji.', 'ok');
+    }
+  });
+
+  $('#once-start').addEventListener('click', () => guarded(() => start('once')));
+  $('#once-stop').addEventListener('click', () => guarded(() => stop('once')));
+  $('#auto-start').addEventListener('click', () => guarded(() => start('auto')));
+  $('#auto-stop').addEventListener('click', () => guarded(() => stop('auto')));
+  $('#save').addEventListener('click', saveConn);
+  $('#clear').addEventListener('click', clearToken);
+  $('#saveDiscord').addEventListener('click', () => guarded(saveDiscordToken));
+
+  refresh();
+  setInterval(() => { if (!document.hidden) refresh(); }, 20000);
+  setInterval(renderRuns, 30000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
+})();
+</script>
+</body>
+</html>
